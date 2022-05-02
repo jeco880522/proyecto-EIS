@@ -40,7 +40,7 @@ public class DocentesController {
     }
     //Get docentes/ID
     @GetMapping("/docentes/{id}")
-    public Optional<Docente> findByIdDocente(@PathVariable long id){
+    public Optional<Docente> findByIdDocente(@PathVariable Long id){
         return repository.findById(id);
     }
     //Put
@@ -54,5 +54,9 @@ public class DocentesController {
     public String deleteDocente(@RequestBody Docente docente){
         repository.delete(docente);
         return "BORRADO";
+    }
+    @GetMapping("/docenteExiste/{id}")
+    public boolean existeDocente(@PathVariable Long id){
+        return repository.existsById(id);
     }
 }

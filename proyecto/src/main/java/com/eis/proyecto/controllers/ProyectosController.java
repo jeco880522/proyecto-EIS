@@ -38,9 +38,9 @@ public class ProyectosController {
     public <P extends Proyecto> P saveProyecto(@RequestBody Proyecto proyecto){
         return (P) repository.save(proyecto);
     }
-    //Get servicios/ID
+    //Get proyectos/ID
     @GetMapping("/proyectos/{id}")
-    public Optional<Proyecto> findByIdProyecto(@PathVariable long id){
+    public Optional<Proyecto> findByIdProyecto(@PathVariable Long id){
         return repository.findById(id);
     }
     //Put
@@ -54,5 +54,11 @@ public class ProyectosController {
     public String deleteProyecto(@RequestBody Proyecto proyecto){
         repository.delete(proyecto);
         return "BORRADO";
+    }
+    
+    //Get List By Idnetif_doc
+    @GetMapping("/proyectosDocente/{identif_doc_fk}")
+    public List<Proyecto> findProyectoByDocente(@PathVariable Long identif_doc_fk){
+        return repository.findAllIdentifDoc(identif_doc_fk);
     }
 }

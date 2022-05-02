@@ -7,6 +7,7 @@ package com.eis.proyecto.repositories;
 import com.eis.proyecto.models.Proyecto;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -27,4 +28,7 @@ public interface ProyectosRepository extends CrudRepository<Proyecto, Long>{
     
     @Override
     public void delete(Proyecto proyecto);
+    
+    @Query(value = "SELECT * FROM proyecto WHERE identif_doc_fk =:identif_doc_fk ", nativeQuery=true)
+    public List <Proyecto> findAllIdentifDoc(Long identif_doc_fk);
 }

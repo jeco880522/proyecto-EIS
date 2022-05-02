@@ -40,7 +40,7 @@ public class EstudiantesController {
     }
     //Get estudiantes/ID
     @GetMapping("/estudiantes/{id}")
-    public Optional<Estudiante> findByIdEstudiante(@PathVariable long id){
+    public Optional<Estudiante> findByIdEstudiante(@PathVariable Long id){
         return repository.findById(id);
     }
     //Put
@@ -55,4 +55,10 @@ public class EstudiantesController {
         repository.delete(estudiante);
         return "BORRADO";
     }
+    //Delete by ID
+    @DeleteMapping("/estudiantes/{id}")
+    public void deleteByIdEstudiante(@PathVariable Long id){
+        repository.deleteById(id);
+    }
+    
 }

@@ -27,4 +27,7 @@ public interface EstudiantesRepository extends CrudRepository<Estudiante, Long>{
     
     @Override
     public void delete(Estudiante estudiante);
+    
+    @Override
+    public void deleteById(Long id);
 }

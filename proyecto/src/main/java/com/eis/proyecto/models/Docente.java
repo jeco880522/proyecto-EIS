@@ -4,10 +4,11 @@
  */
 package com.eis.proyecto.models;
 
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -19,38 +20,28 @@ import javax.persistence.Table;
 @Table (name="docente")
 public class Docente {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id_doc;
-    private long identif_doc;
+    private Long identif_doc;
     private String nombre_doc;
     private String apellido_doc;
     private String nivel_educativo;
     private String correo_institucional_doc;
-
+   
     public Docente() {
     }
 
-    public Docente(long identif_doc, String nombre_doc, String apellido_doc, String nivel_educativo, String correo_institucional_doc) {
+    public Docente(Long identif_doc, String nombre_doc, String apellido_doc, String nivel_educativo, String correo_institucional_doc) {
         this.identif_doc = identif_doc;
         this.nombre_doc = nombre_doc;
         this.apellido_doc = apellido_doc;
         this.nivel_educativo = nivel_educativo;
         this.correo_institucional_doc = correo_institucional_doc;
     }
-
-    public long getId_doc() {
-        return id_doc;
-    }
-
-    public void setId_doc(long id_doc) {
-        this.id_doc = id_doc;
-    }
-
+    
     public long getIdentif_doc() {
         return identif_doc;
     }
 
-    public void setIdentif_doc(long identif_doc) {
+    public void setIdentif_doc(Long identif_doc) {
         this.identif_doc = identif_doc;
     }
 
@@ -85,4 +76,5 @@ public class Docente {
     public void setCorreo_institucional_doc(String correo_institucional_doc) {
         this.correo_institucional_doc = correo_institucional_doc;
     }
+
 }

@@ -27,4 +27,7 @@ public interface DocentesRepository extends CrudRepository<Docente, Long>{
     
     @Override
     public void delete(Docente docente);
+    
+    @Override
+    public boolean existsById(Long id);
 }

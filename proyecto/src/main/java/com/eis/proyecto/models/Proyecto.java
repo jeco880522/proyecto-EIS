@@ -5,7 +5,9 @@
 package com.eis.proyecto.models;
 
 import java.util.Date;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -23,27 +25,27 @@ import javax.persistence.Temporal;
 public class Proyecto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id_pro;
+    private Long id_pro;
     private String nombre_pro;
     
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fecha_limite;
     
     private byte[] archivo_pro;
-    private boolean estado_pro;
+    private String estado_pro;
     private String retroalimentacion_pro;
-    @ManyToOne
+    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name="id_est_Fk")
     private Estudiante estudiante;
     
-    @ManyToOne
-    @JoinColumn(name="id_doc_Fk")
+    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name="identif_doc_Fk")
     private Docente docente;
 
     public Proyecto() {
     }
 
-    public Proyecto(String nombre_pro, Date fecha_limite, byte[] archivo_pro, boolean estado_pro, String retroalimentacion_pro, Estudiante estudiante, Docente docente) {
+    public Proyecto(String nombre_pro, Date fecha_limite, byte[] archivo_pro, String estado_pro, String retroalimentacion_pro, Estudiante estudiante, Docente docente) {
         this.nombre_pro = nombre_pro;
         this.fecha_limite = fecha_limite;
         this.archivo_pro = archivo_pro;
@@ -53,11 +55,11 @@ public class Proyecto {
         this.docente = docente;
     }
 
-    public long getId_pro() {
+    public Long getId_pro() {
         return id_pro;
     }
 
-    public void setId_pro(long id_pro) {
+    public void setId_pro(Long id_pro) {
         this.id_pro = id_pro;
     }
 
@@ -85,11 +87,11 @@ public class Proyecto {
         this.archivo_pro = archivo_pro;
     }
 
-    public boolean isEstado_pro() {
+    public String getEstado_pro() {
         return estado_pro;
     }
 
-    public void setEstado_pro(boolean estado_pro) {
+    public void setEstado_pro(String estado_pro) {
         this.estado_pro = estado_pro;
     }
 
