@@ -6,6 +6,7 @@ import { Panel } from "primereact/panel";
 import { Menubar } from "primereact/menubar";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
+import { InputTextarea } from "primereact/inputtextarea";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 
@@ -17,8 +18,8 @@ export default class EvaluarPro extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-          proyectos: [],
-          arrayProTable: [],
+          visible: false,
+          proyectos: '',
           proyecto: {
             id_pro: '',
             nombre_pro: '',
@@ -26,15 +27,48 @@ export default class EvaluarPro extends React.Component {
             archivo_pro: '',
             estado_pro: '',
             retroalimentacion_pro: '',
-            id_est_fk: '',
-            identif_doc_fk: ''
+            estudiante: '',
+            docente: ''
           },
-          estudiantes: [],
-          docentes: [],
           identif_doc_busq: '',
+          selectedProyecto : {
+          },
         };
-        this.proyectoService = new ProyectoService();
-        this.jsonTable = this.jsonTable.bind(this);
+
+        this.Toast = React.createRef();
+
+        this.items = [
+          {
+            label: "Editar",
+            icon: "pi pi-fw pi-pencil",
+            command: () => {
+              this.showEditDialog();
+              this.proyectoService.getProyectDocent(this.props.identif_doc).then((res) => {
+              this.setState( { proyectos: res }); 
+              });
+            },
+          },
+          {
+            label: "Recargar",
+            icon: "pi pi-fw pi-undo",
+            command: () => {
+              this.proyectoService.getProyectDocent(this.props.identif_doc).then((res) => {
+              this.setState( { proyectos: res }); 
+              });
+            },
+          },
+        ];
+
+      this.proyectoService = new ProyectoService();
+
+      this.save = this.save.bind(this);
+
+      this.footer = (
+        <div>
+          <Button label="Guardar" icon="pi pi-check" onClick={this.save} />
+        </div>
+      );
+      
       }
       
       componentDidMount() {
@@ -42,61 +76,122 @@ export default class EvaluarPro extends React.Component {
           this.setState( { 
             proyectos: res
           });
-        }); 
-        this.jsonTable();
+        });
       }
 
-      jsonTable(){
-        this.state.proyectos.map( (i) => {
+      save() {
+        this.proyectoService.save(this.state.proyecto).then((data) => {
           this.setState({
+            visible: false,
             proyecto: {
-              id_pro: i.id_pro,
-              nombre_pro: i.nombre_pro,
-              fecha_limite: i.fecha_limite,
-              archivo_pro: i.archivo_pro,
-              estado_pro: i.estado_pro,
-              retroalimentacion_pro: i.retroalimentacion_pro
-            }
-          });
-          this.state.estudiantes.push(i.estudiante);
-          this.state.docentes.push(i.docente);
-          this.state.arrayProTable.push(this.state.proyecto)
-          this.setState({
-            proyecto: {
-              id_pro: '',
-              nombre_pro: '',
-              fecha_limite: '',
-              archivo_pro: '',
-              estado_pro: '',
-              retroalimentacion_pro: ''
-            }
+                id_pro: '',
+                nombre_pro: '',
+                fecha_limite: '',
+                archivo_pro: '',
+                estado_pro: '',
+                retroalimentacion_pro: '',
+                estudiante: '',
+                docente: ''
+              }
           });
         });
-        console.log(this.state.estudiantes);
-        console.log(this.state.docentes);
-        console.log(this.state.arrayProTable);
+        this.Toast.current.show({
+          severity: "success",
+          summary: "Atención!",
+          detail: "Se actualizó el registro correctamente.",
+        });
+        this.proyectoService.getProyectDocent(this.props.identif_doc).then((res) => {
+         this.setState( { proyectos: res }); 
+        });
       }
-
-      
 
       render() {
         return (
-          console.log(this.state.proyectos),
-            <div style={{ width: "80%", margin: "0 auto", marginTop: "20px" }}>
-              <li>{this.props.identif_doc}</li>
-              <Panel header="Proyectos">
+            <div style={{ width: "95%", margin: "0 auto", marginTop: "20px" }}>
+              <Menubar model={this.items} />
+              <br />
+              <Panel header="Evaluación de proyectos">
                 <DataTable 
-                  value={this.state.arrayProTable}
+                  value={this.state.proyectos}
                   paginator = {true}
                   rows = "4"
-                  selectionMode="single">
+                  selectionMode="single"
+                  selection = {this.state.selectedProyecto}
+                  onSelectionChange={e => this.setState({selectedProyecto: e.value})}>
+                    <Column field="id_pro" header="ID"></Column>
+                    <Column field="estudiante.nombre_est" header="Nombres"></Column>
+                    <Column field="estudiante.apellido_est" header="Apellidos"></Column>
+                    <Column field="nombre_pro" header="Titulo del Proyecto"></Column>
+                    <Column field="fecha_limite" header="Fecha Limite para Evaluar"></Column>
+                    <Column field="estado_pro" header="Estado (Aprobado/No Aprobado)"></Column>
+                    <Column field="retroalimentacion_pro" header="Retroalimentación"></Column>
                 </DataTable>
-                  <Column field="id_pro" header="ID"></Column>
-                  <Column field="nombre_pro" header="Titulo del Proyecto"></Column>
-                   <Column field="fecha_limite" header="Fecha Limite para Evaluar"></Column>
-                  <Column field="estado_pro" header="Estado"></Column>
-                </Panel>
+              </Panel>
+              <Dialog
+                header="Informacion de la Evaluación"
+                visible={this.state.visible}
+                style={{ width: "400px" }}
+                footer={this.footer}
+                modal={true}
+                onHide={() => this.setState({ visible: false })}
+              >
+                <br />
+                <br />
+                <form id="form-doc">
+                  <span className="p-float-label">
+                    <InputText
+                      style={{ width: "100%" }}
+                      value={this.state.proyecto.estado_pro}
+                      id="estado_pro"
+                      onChange={(e) => {
+                        let val = e.target.value;
+                        this.setState((prevState) => {
+                          let proyecto = Object.assign({}, prevState.proyecto);
+                          proyecto.estado_pro = val;
+                          return { proyecto };
+                        });
+                      }}
+                  />
+                  <label htmlFor="estado_pro">Estado</label>
+                  </span>
+                  <br />
+                  <br />
+                  <span className="p-float-label">
+                    <InputTextarea
+                      rows={5} 
+                      cols={30}
+                      value={this.state.proyecto.retroalimentacion_pro}
+                      id="retroalimentacion_pro"
+                      onChange={(e) => {
+                        let val = e.target.value;
+                        this.setState((prevState) => {
+                          let proyecto= Object.assign({}, prevState.proyecto);
+                          proyecto.retroalimentacion_pro = val;
+                          return { proyecto };
+                        });
+                      }}
+                    />
+                    <label htmlFor="retroalimentacion_pro">Retroalimentación</label>
+                  </span>
+                </form>
+              </Dialog>
+              <Toast ref={this.Toast} />
             </div>
         );
+    }
+    showEditDialog(){
+      this.setState({
+        visible: true,
+        proyecto: {
+          id_pro: this.state.selectedProyecto.id_pro,
+          nombre_pro: this.state.selectedProyecto.nombre_pro,
+          fecha_limite: this.state.selectedProyecto.fecha_limite,
+          archivo_pro: this.state.selectedProyecto.archivo_pro,
+          estado_pro: this.state.selectedProyecto.estado_pro,
+          retroalimentacion_pro: this.state.selectedProyecto.retroalimentacion_pro,
+          estudiante: this.state.selectedProyecto.estudiante,
+          docente: this.state.selectedProyecto.docente
+        },
+      });
     }
 }
