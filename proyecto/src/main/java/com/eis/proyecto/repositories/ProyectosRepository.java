@@ -31,5 +31,4 @@ public interface ProyectosRepository extends CrudRepository<Proyecto, Long>{
     
     @Query(value = "SELECT * FROM proyecto WHERE identif_doc_fk =:identif_doc_fk ", nativeQuery=true)
     public List <Proyecto> findAllIdentifDoc(Long identif_doc_fk);
-    
 }
