@@ -89,9 +89,8 @@ export default class EvaluarPro extends React.Component {
         <div>
           <Button label="Guardar" icon="pi pi-check" onClick={this.save} />
         </div>
-      );
-      
-      }
+      );  
+    }
       
       componentDidMount() {
         this.proyectoService.getProyectDocent(this.props.identif_doc).then((res) => {
@@ -102,10 +101,11 @@ export default class EvaluarPro extends React.Component {
       }
 
       save() {
+        console.log(this.state.proyecto);
         this.proyectoService.save(this.state.proyecto).then((data) => {
           this.setState({
             visible: false,
-            proyecto: {
+            proyecto: [{
                 id_pro: '',
                 nombre_pro: '',
                 fecha_limite: '',
@@ -114,7 +114,7 @@ export default class EvaluarPro extends React.Component {
                 retroalimentacion_pro: '',
                 estudiante: '',
                 docente: ''
-              }
+              }]
           });
         });
         this.Toast.current.show({

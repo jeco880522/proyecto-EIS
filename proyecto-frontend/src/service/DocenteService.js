@@ -10,6 +10,6 @@ export class DocenteService{
     }
 
     findById(id){
-        return axios.get(this.baseUrl + "docentes/"+id).then(res => res.date);
+        return axios.get(this.baseUrl + "docentes/"+id).then(res => res.data);
     }
 }

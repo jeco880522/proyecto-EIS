@@ -3,8 +3,8 @@ import root from ".";
 import Home from "./Home";
 import { EstudianteService } from "./service/EstudianteService";
 import { ProyectoService } from "./service/ProyectoService";
-import { Button } from "primereact/button";
 import { DocenteService } from "./service/DocenteService";
+import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Panel } from "primereact/panel";
@@ -17,6 +17,7 @@ import { Toast } from "primereact/toast";
 import "primereact/resources/themes/nova-alt/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
+import { toHaveDisplayValue } from "@testing-library/jest-dom/dist/matchers";
 
 export default class AsignarPro extends React.Component {
     constructor(props) {
@@ -26,7 +27,7 @@ export default class AsignarPro extends React.Component {
             proyectos: '',
             visible: false,
             proyecto:{
-                id_pro: "",
+                id_pro: '',
                 nombre_pro: '',
                 fecha_limite: '',
                 archivo_pro: '',
@@ -35,10 +36,10 @@ export default class AsignarPro extends React.Component {
                 estudiante: '',
                 docente: ''
             },
-            identif_est: '',
+            id_est: '',
             identif_doc: '',
-            docente:'',
-            estudiante:'',
+            docentes: [],
+            estudiantes: [],
             selectedProyecto : {
             },
 
@@ -92,33 +93,53 @@ export default class AsignarPro extends React.Component {
 
     componentDidMount() {
         this.proyectoService.findAllProyect().then((res) => {
-          this.setState( { proyectos: res }); });
+            console.log(res);
+            this.setState( { proyectos: res }); });
+        this.docenteService.getAll().then((res) => {
+            this.setState({ docentes: res, }); });
+        this.estudianteService.getAll().then((res) => {
+            this.setState({ estudiantes: res, }); });
+    }
+
+    obtenerDocente( identif_doc ){
+        for (let index = 0; index < this.state.docentes.length; index++) {
+            if(this.state.docentes[index].identif_doc == identif_doc){
+                return this.state.docentes[index];
+            }
+        }
+    }
+    obtenerEstudiante( id_est ){
+        for (let index = 0; index < this.state.estudiantes.length; index++) {
+            if(this.state.estudiantes[index].id_est == id_est){
+                return this.state.estudiantes[index];
+            }
+        }
     }
 
     save() {
+        console.log(this.state.proyecto);
         this.proyectoService.save(this.state.proyecto).then((data) => {
-          this.setState({
-            visible: false,
-            proyecto: {
-                id_pro: '',
-                nombre_pro: '',
-                fecha_limite: '',
-                archivo_pro: '',
-                estado_pro: '',
-                retroalimentacion_pro: '',
-                estudiante: '',
-                docente: ''
-              }
+            this.setState({
+              visible: false,
+              proyecto: {
+                  id_pro: '',
+                  nombre_pro: '',
+                  fecha_limite: '',
+                  archivo_pro: '',
+                  estado_pro: '',
+                  retroalimentacion_pro: '',
+                  estudiante: '',
+                  docente: ''
+                }
+            });
           });
-        });
-        this.Toast.current.show({
-          severity: "success",
-          summary: "Atención!",
-          detail: "Se actualizó el registro correctamente.",
-        });
-        this.proyectoService.findAllProyect().then((res) => {
-            this.setState( { proyectos: res }); });
+          this.Toast.current.show({
+            severity: "success",
+            summary: "Atención!",
+            detail: "Se actualizó el registro correctamente.",
+          });
     }
+    
 
     render() {
         return (
@@ -158,52 +179,39 @@ export default class AsignarPro extends React.Component {
                         <span className="p-float-label">
                             <InputText
                                 style={{ width: "100%" }}
-                                value={this.state.identif_est}
-                                id="identif_est"
+                                value={this.state.identif_doc}
+                                id="identif_doc"
                                 onChange={(e) => {
-                                  let val = e.target.value;
-                                  this.docenteService.findById(val).then((res) => {
-                                    if(res.identif_doc == val){
-                                        this.setState({docente: res});
-                                    } else {
-                                        this.Toast.current.show({
-                                            severity: "warn",
-                                            summary: "Atención!",
-                                            detail: "El estudiante no existe.",
-                                        });
-                                    }
-                                });
+                                    let val = e.target.value;
+                                    this.setState({
+                                        identif_doc: val,
+                                    })
+                                    this.setState((prevState) => {
+                                        let proyecto = Object.assign({}, prevState.proyecto);
+                                        proyecto.docente = this.obtenerDocente(val);;
+                                        return { proyecto };
+                                    });
                                 }}
                             />
-                            <label htmlFor="identif_est">Identificacion</label>
+                            <label htmlFor="identif_doc">Identificacion Docente</label>
                         </span>
                         <br />
                         <br />
                         <span className="p-float-label">
                             <InputText
                                 style={{ width: "100%" }}
-                                value={this.state.estudiante.id_est}
+                                value={this.state.id_est}
                                 id="id_est"
                                 onChange={(e) => {
                                     let val = e.target.value;
-                                    this.estudianteService.findById(val).then((res) => {
-                                        if(res.id_est == val){
-                                            this.setState({estudiante: res});
-                                        } else {
-                                            this.Toast.current.show({
-                                                severity: "warn",
-                                                summary: "Atención!",
-                                                detail: "El estudiante no existe.",
-                                            });
-                                        }
+                                    this.setState({
+                                        id_est: val
                                     });
-                                    // this.setState((prevState) => {
-                                    //     let estudiante = Object.assign({}, prevState.estudiante);
-                                    //     this.estudianteService.findById(val).then((res) => {
-                                    //         estudiante = res;
-                                    //     })
-                                    //     return { estudiante };
-                                    // });
+                                    this.setState((prevState) => {
+                                        let proyecto = Object.assign({}, prevState.proyecto);
+                                        proyecto.estudiante = this.obtenerEstudiante(val);;
+                                        return { proyecto };
+                                    });
                                 }}
                             />
                             <label htmlFor="id_est">Codigo Estudiante</label>
@@ -213,61 +221,77 @@ export default class AsignarPro extends React.Component {
                         <span className="p-float-label">
                             <InputText
                                 style={{ width: "100%" }}
-                                value={this.state.estudiante.apellido_est}
-                                id="apellido_est"
+                                value={this.state.proyecto.nombre_pro}
+                                id="nombre_pro"
                                 onChange={(e) => {
                                     let val = e.target.value;
                                     this.setState((prevState) => {
-                                        let estudiante = Object.assign({}, prevState.estudiante);
-                                        estudiante.apellido_est = val;
-                                        return { estudiante };
+                                        let proyecto = Object.assign({}, prevState.proyecto);
+                                        proyecto.nombre_pro = val;
+                                        return { proyecto };
                                     });
                                 }}
                             />
-                            <label htmlFor="apellido_est">Apellidos</label>
+                            <label htmlFor="nombre_pro">Nombre del Proyecto</label>
                         </span>
                         <br />
                         <br />
                         <span className="p-float-label">
                             <InputText
                                 style={{ width: "100%" }}
-                                value={this.state.estudiante.correo_institucional_est}
-                                id="correo_institucional_est"
+                                value={this.state.proyecto.fecha_limite}
+                                id="fecha_limite"
                                 onChange={(e) => {
                                     let val = e.target.value;
                                     this.setState((prevState) => {
-                                        let estudiante = Object.assign({}, prevState.estudiante);
-                                        estudiante.correo_institucional_est = val;
-                                        return { estudiante };
+                                        let proyecto = Object.assign({}, prevState.proyecto);
+                                        proyecto.fecha_limite = val;
+                                        return { proyecto };
                                     });
                                 }}
                             />        
-                            <label htmlFor="correo_institucional_est">
-                              Correo Institucional
+                            <label htmlFor="fecha_limite">
+                              Fecha Limite
                             </label>
-                        </span>
-                        <br />
-                        <br />
-                        <span className="p-float-label">
-                            <InputText
-                                style={{ width: "100%" }}
-                                value={this.state.estudiante.telefono_est}
-                                id="telefono_est"
-                                onChange={(e) => {
-                                    let val = e.target.value;
-                                    this.setState((prevState) => {
-                                        let estudiante = Object.assign({}, prevState.estudiante);
-                                        estudiante.telefono_est = val;
-                                        return { estudiante };
-                                    });
-                                }}
-                            />
-                            <label htmlFor="telefono_est">Telefono</label>
                         </span>
                     </form>
                 </Dialog>
                 <Toast ref={this.Toast} />
             </div>
-        )
+        );
+    }
+
+    showSaveDialog() {
+        this.setState({
+            visible: true,
+            proyecto: {
+                id_pro: '',
+                nombre_pro: '',
+                fecha_limite: '',
+                archivo_pro: '',
+                estado_pro: '',
+                retroalimentacion_pro: '',
+                estudiante: '',
+                docente: '',
+            },
+            identif_est: '',
+            identif_doc: '',
+        });
+    }
+
+    showEditDialog(){
+        this.setState({
+            visible: true,
+            proyecto: {
+                id_pro: this.state.selectedProyecto.id_pro,
+                nombre_pro: this.state.selectedProyecto.nombre_pro,
+                fecha_limite: this.state.selectedProyecto.fecha_limite,
+                estado_pro: this.state.selectedProyecto.estado_pro,
+                retroalimentacion_pro: this.state.selectedProyecto.retroalimentacion_pro,
+                archivo_pro: this.state.selectedProyecto.archivo_pro,
+                estudiante: this.state.selectedProyecto.estudiante,
+                docente: this.state.selectedProyecto.docente
+            },
+        });
     }
 }
