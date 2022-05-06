@@ -40,8 +40,8 @@ public class EstudiantesController {
     }
     //Get estudiantes/ID
     @GetMapping("/estudiantes/{id}")
-    public Optional<Estudiante> findByIdEstudiante(@PathVariable Long id){
-        return repository.findById(id);
+    public Estudiante findByIdEstudiante(@PathVariable Long id){
+        return repository.findById(id).get();
     }
     //Put
     @PutMapping("/estudiantes/{nombre}")
