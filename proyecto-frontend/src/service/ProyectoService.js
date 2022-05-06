@@ -9,4 +9,8 @@ export class ProyectoService{
     save(proyecto){
         return axios.post(this.baseUrl + "proyectos", proyecto).then(res => res.data);
     }
+
+    findAllProyect(){
+        return axios.get(this.baseUrl + "proyectos").then(res => res.data);
+    }
 }

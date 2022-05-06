@@ -13,4 +13,8 @@ export class EstudianteService{
     delete(id){
         return axios.delete(this.baseUrl + "estudiantes/"+id).then(res => res.data);
     }
+
+    findById(id){
+        return axios.get(this.baseUrl + "estudiantes/"+id).then(res => res.date);
+    }
 }

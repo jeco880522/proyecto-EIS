@@ -1,14 +1,17 @@
 import {ProyectoService} from "./service/ProyectoService";
-import React, { Component } from "react";
+import React from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Panel } from "primereact/panel";
 import { Menubar } from "primereact/menubar";
 import { Dialog } from "primereact/dialog";
-import { InputText } from "primereact/inputtext";
+import { SelectButton } from 'primereact/selectbutton';
+import { Accordion, AccordionTab } from 'primereact/accordion';
 import { InputTextarea } from "primereact/inputtextarea";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
+import root from ".";
+import Home from "./Home";
 
 import "primereact/resources/themes/nova-alt/theme.css";
 import "primereact/resources/primereact.min.css";
@@ -37,6 +40,17 @@ export default class EvaluarPro extends React.Component {
 
         this.Toast = React.createRef();
 
+        this.opcionesApro = [
+          {
+            label: 'Aprobado',
+            value: 'Aprobado'
+          },
+          {
+            label: 'No Aprobado',
+            value: 'No Aprobado',
+          }
+        ];
+
         this.items = [
           {
             label: "Editar",
@@ -57,6 +71,14 @@ export default class EvaluarPro extends React.Component {
               });
             },
           },
+          {
+            label: "Home",
+            icon: "pi pi-fw pi-home",
+            command: () =>{
+              this.props.history.push("/home");
+              root.render(<Home history = {this.props.history}/>);
+            }
+          }
         ];
 
       this.proyectoService = new ProyectoService();
@@ -115,12 +137,15 @@ export default class EvaluarPro extends React.Component {
                   value={this.state.proyectos}
                   paginator = {true}
                   rows = "4"
+                  responsiveLayout="scroll"
                   selectionMode="single"
                   selection = {this.state.selectedProyecto}
                   onSelectionChange={e => this.setState({selectedProyecto: e.value})}>
                     <Column field="id_pro" header="ID"></Column>
                     <Column field="estudiante.nombre_est" header="Nombres"></Column>
                     <Column field="estudiante.apellido_est" header="Apellidos"></Column>
+                    <Column field="estudiante.telefono_est" header="Telefono"></Column>
+                    <Column field="estudiante.correo_institucional_est" header="Correo"></Column>
                     <Column field="nombre_pro" header="Titulo del Proyecto"></Column>
                     <Column field="fecha_limite" header="Fecha Limite para Evaluar"></Column>
                     <Column field="estado_pro" header="Estado (Aprobado/No Aprobado)"></Column>
@@ -135,44 +160,46 @@ export default class EvaluarPro extends React.Component {
                 modal={true}
                 onHide={() => this.setState({ visible: false })}
               >
-                <br />
-                <br />
                 <form id="form-doc">
-                  <span className="p-float-label">
-                    <InputText
-                      style={{ width: "100%" }}
-                      value={this.state.proyecto.estado_pro}
-                      id="estado_pro"
-                      onChange={(e) => {
-                        let val = e.target.value;
-                        this.setState((prevState) => {
-                          let proyecto = Object.assign({}, prevState.proyecto);
-                          proyecto.estado_pro = val;
-                          return { proyecto };
-                        });
-                      }}
-                  />
-                  <label htmlFor="estado_pro">Estado</label>
-                  </span>
-                  <br />
-                  <br />
-                  <span className="p-float-label">
-                    <InputTextarea
-                      rows={5} 
-                      cols={30}
-                      value={this.state.proyecto.retroalimentacion_pro}
-                      id="retroalimentacion_pro"
-                      onChange={(e) => {
-                        let val = e.target.value;
-                        this.setState((prevState) => {
-                          let proyecto= Object.assign({}, prevState.proyecto);
-                          proyecto.retroalimentacion_pro = val;
-                          return { proyecto };
-                        });
-                      }}
+                  <Accordion>
+                    <AccordionTab header={<React.Fragment>
+                        <i className="pi pi-check-square"></i>
+                        <span>   Estado</span>
+                      </React.Fragment>}>
+                        <SelectButton
+                          value = {this.state.proyecto.estado_pro}
+                          options = {this.opcionesApro}
+                          onChange = { (e) => {
+                            let val = e.target.value;
+                            this.setState((prevState) => {
+                              let proyecto = Object.assign({}, prevState.proyecto);
+                              proyecto.estado_pro = val;
+                              return { proyecto };
+                            });
+                          }}
+                        ></SelectButton>
+                    </AccordionTab>
+                    <AccordionTab header={<React.Fragment>
+                        <i className="pi pi-undo"></i>
+                        <span>  Retroalimentación</span>
+                      </React.Fragment>}>
+                        <InputTextarea
+                          autoResize
+                          rows={6} 
+                          cols={41}
+                          value={this.state.proyecto.retroalimentacion_pro}
+                          id="retroalimentacion_pro"
+                          onChange={(e) => {
+                            let val = e.target.value;
+                            this.setState((prevState) => {
+                              let proyecto= Object.assign({}, prevState.proyecto);
+                              proyecto.retroalimentacion_pro = val;
+                              return { proyecto };
+                            });
+                          }}
                     />
-                    <label htmlFor="retroalimentacion_pro">Retroalimentación</label>
-                  </span>
+                  </AccordionTab>
+                  </Accordion>
                 </form>
               </Dialog>
               <Toast ref={this.Toast} />

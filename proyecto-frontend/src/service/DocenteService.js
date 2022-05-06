@@ -8,4 +8,8 @@ export class DocenteService{
     existsById(id){
         return axios.get(this.baseUrl + "docenteExiste/"+id);
     }
+
+    findById(id){
+        return axios.get(this.baseUrl + "docentes/"+id).then(res => res.date);
+    }
 }
