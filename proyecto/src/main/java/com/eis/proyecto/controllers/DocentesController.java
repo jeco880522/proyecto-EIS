@@ -55,6 +55,7 @@ public class DocentesController {
         repository.delete(docente);
         return "BORRADO";
     }
+    //Existe Docente, lo trae de docentesRepository
     @GetMapping("/docenteExiste/{id}")
     public boolean existeDocente(@PathVariable Long id){
         return repository.existsById(id);
