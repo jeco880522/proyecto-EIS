@@ -16,7 +16,6 @@ export default class VistaDocente extends Component {
     super(props);
     this.Toast = React.createRef();
     this.state = {
-      docente: [],
       identif_doc_busq: "",
     };
     this.docenteService = new DocenteService();
@@ -41,7 +40,7 @@ export default class VistaDocente extends Component {
           detail: "Se encontro el docente.",
         });
         this.props.history.push("/evaluarpro");
-        root.render(<EvaluarPro identif_doc = {this.state.identif_doc_busq} />);
+        root.render(<EvaluarPro identif_doc = {this.state.identif_doc_busq} history = {this.props.history}/>);
       } else {
         this.Toast.current.show({
           severity: "warn",
@@ -56,7 +55,7 @@ export default class VistaDocente extends Component {
     return (
       <div
         onSubmit={this.handleSubmit}
-        style={{ width: "40%", margin: "0 auto", marginTop: "20px" }}
+        style={{ width: "40%", margin: "0 auto", marginTop: "50px" }}
       >
         <Panel header="Docentes">
           <br />
